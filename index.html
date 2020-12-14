@@ -13,6 +13,34 @@
 </head>
 
 <body>
-  <script src="js/main.js"></script>
+
+  <main>
+    <div class="title-container">
+        <h1>Youtube comment picker</h1>
+        <p class="description">Simple tool for randomly picking winner among comments on a youtube video</p>
+    </div>
+    <div class="form-container">
+        
+        <label for="video-id">Enter Youtube video id</label>
+        <input class="video-id-input" type="text" id="video-id" placeholder="">
+        <button id="submit-video-id">Submit video ID</button>
+        <button disabled id="pick-winner">Pick the winner!</button>
+       
+    </div>
+    <div class="results-container">
+        <h2>Video data</h2>
+        <h3>Title: <span id="video-title"></span></h3>
+        <h3>Comments count: <span id="comments-count"></span></h3>
+        <h2>Winner</h2>
+        <img id="winner-image" src="" alt="">
+        <h3>Name: <span id="winner-name"></span></h3>
+        <h3>Comment: <span id="winner-comment"></span></h3>
+    </div>
+    
+    <script type="module" src="https://apis.google.com/js/api.js"></script>
+    <script type="module" src="js/main.js"></script>
+    
+
+  </main>
 </body>
 </html>

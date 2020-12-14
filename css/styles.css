@@ -1,0 +1,44 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  color: rgb(28, 28, 28);
+}
+
+main {
+  margin-top: 40px;
+  margin-bottom: 40px;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 20px;
+  max-width: 700px;
+  background-color: rgb(242, 242, 242);
+}
+
+.title-container {
+  padding: 25px 20px;
+}
+
+h1 {
+  text-align: center;
+}
+
+h3 {
+  text-transform: uppercase;
+  font-size: 1em;
+  color: rgb(48, 48, 48);
+}
+
+.description {
+  text-align: center;
+  font-size: 1.1em;
+  font-style: italic;
+}
+
+.form-container {
+  padding: 25px 20px;
+  background-color: rgb(165, 191, 201);
+}
+
+.results-container {
+  background-color: rgb(242, 242, 242);
+  padding: 25px 20px;
+}
