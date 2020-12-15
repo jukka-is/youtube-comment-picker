@@ -1,6 +1,6 @@
 # Youtube comment picker
 
-Simple tool for picking a winner among comments posted on a Youtube video.
+Simple tool for picking a random winner among comments posted on Youtube video.
 
 ## How to set up
 
