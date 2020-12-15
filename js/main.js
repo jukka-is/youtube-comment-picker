@@ -55,9 +55,7 @@ function getData() {
                 "part": [
                     "contentDetails, snippet"
                 ],
-                "id": [
-                    "3y007Hg3gK0"
-                ],
+                "id": [videoIdField.value],
                 "access_token": youtubeApiKey
             });
         })
@@ -129,12 +127,18 @@ function resetResultsInDom() {
     disableButton(pickWinnerButton);
 }
 
+function resetAll() {
+    resetResultsInDom();
+    commentData.resetData();
+    videoIdField.value = '';
+}
+
 function pickWinner() {
 
     console.log('Picking winner...');
 
     if (commentData.isSet) {
-        var winner = commentData.comments[Math.floor(Math.random() * commentData.comments.length)];
+        let winner = commentData.comments[Math.floor(Math.random() * commentData.comments.length)];
         winnerNameSpan.textContent = winner.name;
         winnerCommentSpan.textContent = winner.content;
         winnerImg.setAttribute('src', winner.imageUrl);
@@ -158,6 +162,7 @@ let commentData = new CommentList();
 let videoIdField = document.getElementById('video-id');
 let submitButton = document.getElementById('submit-video-id');
 let pickWinnerButton = document.getElementById('pick-winner');
+let resetButton = document.getElementById('reset');
 let channelNameSpan = document.getElementById('channel-name');
 let videoTitleSpan = document.getElementById('video-title');
 let commentsCountSpan = document.getElementById("comments-count");
@@ -170,3 +175,4 @@ let winnerImg = document.getElementById("winner-image");
 videoIdField.addEventListener('input', updateId);
 submitButton.addEventListener('click', submitVideoId);
 pickWinnerButton.addEventListener('click', pickWinner);
+resetButton.addEventListener('click', resetAll);
