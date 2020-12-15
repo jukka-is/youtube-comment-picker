@@ -1,12 +1,13 @@
 import {youtubeApiKey} from './../api-keys.js';
-console.log(youtubeApiKey);
+import {CommentList} from './CommentList.js';
 
 console.log('Main JS loaded');
 
 
 function submitVideoId(){
-    if (videoId.isValid) {
-        console.log('video id submitted: ' + videoId.value);
+    if ( isValidId(videoIdField.value) ) {
+        console.log('video id submitted: ' + videoIdField.value);
+        commentData.video.id = videoIdField.value;
         gapi.load("client", start);
     }
     else {
@@ -16,15 +17,13 @@ function submitVideoId(){
 
 function updateId(){
     
-    videoId.value = document.getElementById('video-id').value;
-    videoId.isValid = validateVideoId(videoId.value);
-    console.log('Video id updated "' + videoId.value + '", which is ' + videoId.isValid);
-    if(!videoId.isValid && commentData.isSet){
+    console.log('Video id updated "' + videoIdField.value + '", which is ' + isValidId(videoIdField.value));
+    if(commentData.isSet && commentData.video.id != videoIdField.value){
         resetResults();
     }
 }
 
-function validateVideoId(id){
+function isValidId(id){
     const regex = /([a-zA-Z0-9_-]{11})/;
     return regex.test(id);
 }
@@ -42,7 +41,7 @@ function start() {
           "snippet"
         ],
         "maxResults": 100,
-        "videoId": videoId.value,
+        "videoId": videoIdField.value,
         "access_token": youtubeApiKey
       });
     }).then(function(response) {
@@ -81,8 +80,7 @@ function resetResults() {
 
     console.log('Resetting...')
 
-    commentData.isSet = false,
-    commentData.comments = [],
+    commentData.resetData();
 
     document.getElementById("comments-count").textContent = '';
     document.getElementById("winner-name").textContent =  '';
@@ -111,23 +109,11 @@ function pickWinner() {
         document.getElementById("winner-comment").textContent =  winner.content;
         document.getElementById("winner-image").setAttribute('src', winner.imageUrl);
     }
-    
-
 }
 
 // DATA
 
-
-let videoId = {
-    'value' : '',
-    'isValid' : false
-};
-
-let commentData = {
-    'isSet' : false,
-    'comments' : [],
-}
-
+let commentData = new CommentList();
 
 let videoIdField = document.getElementById('video-id');
 let submitButton = document.getElementById('submit-video-id');
