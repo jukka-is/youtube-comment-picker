@@ -8,7 +8,7 @@ function submitVideoId(){
     if ( isValidId(videoIdField.value) ) {
         console.log('video id submitted: ' + videoIdField.value);
         commentData.video.id = videoIdField.value;
-        gapi.load("client", start);
+        gapi.load("client", getData);
     }
     else {
         console.log('Video id is not valid');
@@ -30,7 +30,7 @@ function isValidId(id){
     return regex.test(id);
 }
 
-function start() {
+function getData() {
     // 2. Initialize the JavaScript client library.
     gapi.client.init({
       'apiKey': youtubeApiKey,
@@ -47,14 +47,14 @@ function start() {
         "access_token": youtubeApiKey
       });
     }).then(function(response) {
-      returnData(response.result);
+      processData(response.result);
     }, function(reason) {
       return 'Error: ' + reason.result.error.message;
     });
 
 };
 
-function returnData(data){
+function processData(data){
 
     console.log(data);
     
@@ -84,10 +84,10 @@ function resetResults() {
 
     commentData.resetData();
 
-    document.getElementById("comments-count").textContent = '';
-    document.getElementById("winner-name").textContent =  '';
-    document.getElementById("winner-comment").textContent =  '';
-    document.getElementById("winner-image").setAttribute('src', '');
+    commentsCountSpan.textContent = '';
+    winnerNameSpan.textContent =  '';
+    winnerCommentSpan.textContent =  '';
+    winnerImg.setAttribute('src', '');
 
     disableButton(submitButton);
     disableButton(pickWinnerButton);
@@ -97,7 +97,7 @@ function updateResults() {
 
     console.log('Updating reults')
 
-    document.getElementById("comments-count").textContent = commentData.comments.length;
+    commentsCountSpan.textContent = commentData.comments.length;
 
     activateButton(pickWinnerButton);
 }
@@ -108,9 +108,9 @@ function pickWinner() {
 
     if (commentData.isSet) {
         var winner = commentData.comments[Math.floor(Math.random() * commentData.comments.length)];
-        document.getElementById("winner-name").textContent =  winner.name;
-        document.getElementById("winner-comment").textContent =  winner.content;
-        document.getElementById("winner-image").setAttribute('src', winner.imageUrl);
+        winnerNameSpan.textContent =  winner.name;
+        winnerCommentSpan.textContent =  winner.content;
+        winnerImg.setAttribute('src', winner.imageUrl);
     }
 }
 
@@ -129,6 +129,10 @@ let commentData = new CommentList();
 let videoIdField = document.getElementById('video-id');
 let submitButton = document.getElementById('submit-video-id');
 let pickWinnerButton = document.getElementById('pick-winner');
+let commentsCountSpan = document.getElementById("comments-count");
+let winnerNameSpan = document.getElementById("winner-name");
+let winnerCommentSpan = document.getElementById("winner-comment");
+let winnerImg = document.getElementById("winner-image");
 
 // Events
 
