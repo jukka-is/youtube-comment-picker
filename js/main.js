@@ -4,6 +4,8 @@ import { CommentList } from './CommentList.js';
 console.log('Main JS loaded');
 
 
+// Functions
+
 function submitVideoId() {
     if (isValidId(videoIdField.value)) {
         console.log('video id submitted: ' + videoIdField.value);
@@ -11,9 +13,10 @@ function submitVideoId() {
         gapi.load("client", getData);
     }
     else {
-        console.log('Video id is not valid');
+
     }
 }
+
 
 function updateId() {
 
@@ -26,40 +29,43 @@ function updateId() {
     }
 }
 
+
 function isValidId(id) {
     const regex = /([a-zA-Z0-9_-]{11})/;
     return regex.test(id);
 }
 
+
 function getData() {
-    // 2. Initialize the JavaScript client library.
+    // Initialize the JavaScript client library.
     gapi.client.init({
         'apiKey': youtubeApiKey,
-        // Your API key will be automatically added to the Discovery Document URLs.
         'discoveryDocs': ['https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest'],
     })
         .then(() => {
-            // 3. Initialize and make the API request.
+            // Make the API request for comments
             return gapi.client.youtube.commentThreads.list({
-                "part": [
-                    "snippet"
-                ],
+                "part": ["snippet"],
                 "maxResults": 100,
                 "videoId": videoIdField.value,
                 "access_token": youtubeApiKey
             });
         })
-        .then(response => processCommentData(response.result), reason => 'Error: ' + reason.result.error.message)
+        .then(response => processCommentData(response.result), reason => {
+            errorMessageSpan.textContent = "Could not find YouTube video with the ID. Please try again.";
+            console.log('nyt tuli virhe');
+            return 'Error: ' + reason.result.error.message;
+        })
         .then(() => {
+            // Make the API request for video meta-data
             return gapi.client.youtube.videos.list({
-                "part": [
-                    "contentDetails, snippet"
-                ],
+                "part": ["snippet"],
                 "id": [videoIdField.value],
                 "access_token": youtubeApiKey
             });
         })
-        .then(response => processVideoData(response.result), reason => 'Error: ' + reason.result.error.message)
+        .then(response => processVideoData(response.result))
+        .catch(reason => ('Error: '))
         .then(() => dataProcessingFinished())
         .then(() => updateResultsInDom());
 
@@ -116,6 +122,7 @@ function resetResultsInDom() {
 
     console.log('Resetting dom...')
 
+    errorMessageSpan.textContent = '';
     channelNameSpan.textContent = '';
     videoTitleSpan.textContent = '';
     commentsCountSpan.textContent = '';
@@ -163,6 +170,7 @@ let videoIdField = document.getElementById('video-id');
 let submitButton = document.getElementById('submit-video-id');
 let pickWinnerButton = document.getElementById('pick-winner');
 let resetButton = document.getElementById('reset');
+let errorMessageSpan = document.getElementById('error-message');
 let channelNameSpan = document.getElementById('channel-name');
 let videoTitleSpan = document.getElementById('video-title');
 let commentsCountSpan = document.getElementById("comments-count");
