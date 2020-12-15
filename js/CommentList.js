@@ -5,7 +5,7 @@ export class CommentList {
         this.video = {
             'id': '',
             'name': '',
-            'authorId': ''
+            'creatorId': ''
         }
         console.log('new CommentList constructed');
     }
@@ -46,7 +46,7 @@ export class CommentList {
 
         if (excludeAuthor) {
             console.log('Ready to export comments without comments by video author');
-            modifiedComments = modifiedComments.filter(comment => comment.id !== this.video.authorId);
+            modifiedComments = modifiedComments.filter(comment => comment.id !== this.video.creatorId);
             console.log('Comments author excluded: ' + modifiedComments.length);
         }
         return modifiedComments;
