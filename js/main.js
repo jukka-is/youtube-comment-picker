@@ -17,7 +17,9 @@ function submitVideoId(){
 
 function updateId(){
     
-    console.log('Video id updated "' + videoIdField.value + '", which is ' + isValidId(videoIdField.value));
+    if( isValidId(videoIdField.value) ){
+        activateButton(submitButton);
+    };
     if(commentData.isSet && commentData.video.id != videoIdField.value){
         resetResults();
     }
@@ -87,7 +89,8 @@ function resetResults() {
     document.getElementById("winner-comment").textContent =  '';
     document.getElementById("winner-image").setAttribute('src', '');
 
-    document.getElementById("pick-winner").setAttribute('disabled', true);
+    disableButton(submitButton);
+    disableButton(pickWinnerButton);
 }
 
 function updateResults() {
@@ -96,7 +99,7 @@ function updateResults() {
 
     document.getElementById("comments-count").textContent = commentData.comments.length;
 
-    document.getElementById("pick-winner").toggleAttribute('disabled', false);
+    activateButton(pickWinnerButton);
 }
 
 function pickWinner() {
@@ -109,6 +112,14 @@ function pickWinner() {
         document.getElementById("winner-comment").textContent =  winner.content;
         document.getElementById("winner-image").setAttribute('src', winner.imageUrl);
     }
+}
+
+function disableButton(buttonElement){
+    buttonElement.setAttribute('disabled', true);
+}
+
+function activateButton(buttonElement){
+    buttonElement.removeAttribute('disabled');
 }
 
 // DATA
