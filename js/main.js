@@ -1,11 +1,11 @@
-import {youtubeApiKey} from './../api-keys.js';
-import {CommentList} from './CommentList.js';
+import { youtubeApiKey } from './../api-keys.js';
+import { CommentList } from './CommentList.js';
 
 console.log('Main JS loaded');
 
 
-function submitVideoId(){
-    if ( isValidId(videoIdField.value) ) {
+function submitVideoId() {
+    if (isValidId(videoIdField.value)) {
         console.log('video id submitted: ' + videoIdField.value);
         commentData.video.id = videoIdField.value;
         gapi.load("client", getData);
@@ -15,17 +15,18 @@ function submitVideoId(){
     }
 }
 
-function updateId(){
-    
-    if( isValidId(videoIdField.value) ){
+function updateId() {
+
+    if (isValidId(videoIdField.value)) {
         activateButton(submitButton);
     };
-    if(commentData.isSet && commentData.video.id != videoIdField.value){
-        resetResults();
+    if (commentData.isSet && commentData.video.id != videoIdField.value) {
+        commentData.resetData();
+        resetResultsInDom();
     }
 }
 
-function isValidId(id){
+function isValidId(id) {
     const regex = /([a-zA-Z0-9_-]{11})/;
     return regex.test(id);
 }
@@ -33,67 +34,65 @@ function isValidId(id){
 function getData() {
     // 2. Initialize the JavaScript client library.
     gapi.client.init({
-      'apiKey': youtubeApiKey,
-      // Your API key will be automatically added to the Discovery Document URLs.
-      'discoveryDocs': ['https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest'],
-    }).then(function() {
-      // 3. Initialize and make the API request.
-      return gapi.client.youtube.commentThreads.list({
-        "part": [
-          "snippet"
-        ],
-        "maxResults": 100,
-        "videoId": videoIdField.value,
-        "access_token": youtubeApiKey
-      });
-    }).then(function(response) {
-      processData(response.result);
-    }, function(reason) {
-      return 'Error: ' + reason.result.error.message;
+        'apiKey': youtubeApiKey,
+        // Your API key will be automatically added to the Discovery Document URLs.
+        'discoveryDocs': ['https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest'],
+    }).then(function () {
+        // 3. Initialize and make the API request.
+        return gapi.client.youtube.commentThreads.list({
+            "part": [
+                "snippet"
+            ],
+            "maxResults": 100,
+            "videoId": videoIdField.value,
+            "access_token": youtubeApiKey
+        });
+    }).then(function (response) {
+        processData(response.result);
+    }, function (reason) {
+        return 'Error: ' + reason.result.error.message;
     });
 
 };
 
-function processData(data){
+function processData(data) {
 
     console.log(data);
-    
+
     let modifiedComments = [];
 
-    for (let comment of data.items){
+    for (let comment of data.items) {
         let modifiedComment = {
-            'id' : comment.snippet.topLevelComment.snippet.authorChannelId.value,
-            'name' : comment.snippet.topLevelComment.snippet.authorDisplayName,
-            'imageUrl' : comment.snippet.topLevelComment.snippet.authorProfileImageUrl,
-            'content' : comment.snippet.topLevelComment.snippet.textDisplay,
+            'id': comment.snippet.topLevelComment.snippet.authorChannelId.value,
+            'name': comment.snippet.topLevelComment.snippet.authorDisplayName,
+            'imageUrl': comment.snippet.topLevelComment.snippet.authorProfileImageUrl,
+            'content': comment.snippet.topLevelComment.snippet.textDisplay,
         };
-        
+
         modifiedComments.push(modifiedComment);
     }
 
     commentData.isSet = true;
     commentData.comments = modifiedComments;
 
-    updateResults();
+    updateResultsInDom();
 
 }
 
-function resetResults() {
+function resetResultsInDom() {
 
-    console.log('Resetting...')
-
-    commentData.resetData();
+    console.log('Resetting dom...')
 
     commentsCountSpan.textContent = '';
-    winnerNameSpan.textContent =  '';
-    winnerCommentSpan.textContent =  '';
+    winnerNameSpan.textContent = '';
+    winnerCommentSpan.textContent = '';
     winnerImg.setAttribute('src', '');
 
     disableButton(submitButton);
     disableButton(pickWinnerButton);
 }
 
-function updateResults() {
+function updateResultsInDom() {
 
     console.log('Updating reults')
 
@@ -108,23 +107,25 @@ function pickWinner() {
 
     if (commentData.isSet) {
         var winner = commentData.comments[Math.floor(Math.random() * commentData.comments.length)];
-        winnerNameSpan.textContent =  winner.name;
-        winnerCommentSpan.textContent =  winner.content;
+        winnerNameSpan.textContent = winner.name;
+        winnerCommentSpan.textContent = winner.content;
         winnerImg.setAttribute('src', winner.imageUrl);
     }
 }
 
-function disableButton(buttonElement){
+function disableButton(buttonElement) {
     buttonElement.setAttribute('disabled', true);
 }
 
-function activateButton(buttonElement){
+function activateButton(buttonElement) {
     buttonElement.removeAttribute('disabled');
 }
 
 // DATA
 
 let commentData = new CommentList();
+
+// DOM elements
 
 let videoIdField = document.getElementById('video-id');
 let submitButton = document.getElementById('submit-video-id');
