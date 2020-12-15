@@ -73,6 +73,7 @@ function processData(data) {
     }
 
     commentData.isSet = true;
+    commentData.video.authorId = 'UCuvol7KxGl3U69iV7XzRm9Q';
     commentData.comments = modifiedComments;
 
     updateResultsInDom();
@@ -96,7 +97,7 @@ function updateResultsInDom() {
 
     console.log('Updating reults')
 
-    commentsCountSpan.textContent = commentData.comments.length;
+    commentsCountSpan.textContent = commentData.getFilteredComments(true, true).length;
 
     activateButton(pickWinnerButton);
 }
