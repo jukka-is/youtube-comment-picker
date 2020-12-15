@@ -4,8 +4,9 @@ export class CommentList {
         this.comments = [];
         this.video = {
             'id': '',
-            'name': '',
-            'creatorId': ''
+            'title': '',
+            'channelName': '',
+            'channelId': ''
         }
         console.log('new CommentList constructed');
     }
@@ -46,7 +47,7 @@ export class CommentList {
 
         if (excludeAuthor) {
             console.log('Ready to export comments without comments by video author');
-            modifiedComments = modifiedComments.filter(comment => comment.id !== this.video.creatorId);
+            modifiedComments = modifiedComments.filter(comment => comment.id !== this.video.channelId);
             console.log('Comments author excluded: ' + modifiedComments.length);
         }
         return modifiedComments;
@@ -57,7 +58,9 @@ export class CommentList {
         this.comments = [];
         this.video = {
             'id': '',
-            'name': '',
+            'title': '',
+            'channelName': '',
+            'channelId': ''
         }
         console.log('all CommentList data reset to empty')
     }
