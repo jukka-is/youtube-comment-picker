@@ -51,6 +51,7 @@ function getData() {
                 "part": ["snippet"],
                 "maxResults": 100,
                 "videoId": videoIdField.value,
+                "searchTerms": searchTermsField.value,
                 "access_token": youtubeApiKey
             });
         })
@@ -194,6 +195,7 @@ let videoIdField = document.getElementById('video-id');
 let submitButton = document.getElementById('submit-video-id');
 let pickWinnerButton = document.getElementById('pick-winner');
 let resetButton = document.getElementById('reset');
+let searchTermsField = document.getElementById('search-terms');
 let uniqueCommentsCheckbox = document.getElementById('unique-comments');
 let excludeCreatorCheckbox = document.getElementById('exclude-creator');
 let errorMessageSpan = document.getElementById('error-message');
