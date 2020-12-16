@@ -19,7 +19,7 @@ export class CommentList {
         this._comments = data;
     }
 
-    getFilteredComments(onlyUnique = false, excludeAuthor = false) {
+    filterComments(onlyUnique = false, excludeCreator = false) {
 
         let modifiedComments = this.comments;
 
@@ -27,7 +27,6 @@ export class CommentList {
             console.log('Ready to export only unique comments');
             let uniqueComments = [];
             for (let comment of this.comments) {
-                console.log(comment.id);
                 let isUnique = true;
                 for (let uniqueComment of uniqueComments) {
                     if (comment.id === uniqueComment.id) {
@@ -45,12 +44,13 @@ export class CommentList {
             modifiedComments = uniqueComments;
         }
 
-        if (excludeAuthor) {
-            console.log('Ready to export comments without comments by video author');
+        if (excludeCreator) {
+            console.log('Ready to export comments without comments by video creator');
             modifiedComments = modifiedComments.filter(comment => comment.id !== this.video.channelId);
-            console.log('Comments author excluded: ' + modifiedComments.length);
+            console.log('Comments creator excluded: ' + modifiedComments.length);
         }
-        return modifiedComments;
+
+        this.comments = modifiedComments;
     }
 
     resetData() {

@@ -13,7 +13,7 @@ function submitVideoId() {
         gapi.load("client", getData);
     }
     else {
-
+        console.log("Can't submit invalid YouTube ID");
     }
 }
 
@@ -22,6 +22,9 @@ function updateId() {
 
     if (isValidId(videoIdField.value)) {
         activateButton(submitButton);
+    }
+    else {
+        console.log('Not a valid Youtube ID');
     };
     if (commentData.isSet && commentData.video.id != videoIdField.value) {
         commentData.resetData();
@@ -51,11 +54,7 @@ function getData() {
                 "access_token": youtubeApiKey
             });
         })
-        .then(response => processCommentData(response.result), reason => {
-            errorMessageSpan.textContent = "Could not find YouTube video with the ID. Please try again.";
-            console.log('nyt tuli virhe');
-            return 'Error: ' + reason.result.error.message;
-        })
+        .then(response => processCommentData(response))
         .then(() => {
             // Make the API request for video meta-data
             return gapi.client.youtube.videos.list({
@@ -64,16 +63,27 @@ function getData() {
                 "access_token": youtubeApiKey
             });
         })
-        .then(response => processVideoData(response.result))
-        .catch(reason => ('Error: '))
-        .then(() => dataProcessingFinished())
-        .then(() => updateResultsInDom());
+        .then(response => processVideoData(response))
+        .then(response => {
+            finishProcessingData();
+            return response;
+        })
+        .then(response => {
+            updateResultsInDom();
+            return response;
+        })
+        .catch(reason => {
+            errorMessageSpan.textContent = "Could not find YouTube video with the ID. Please try again.";
+            return 'Error: ' + reason.result.error.message;
+        });
 
 };
 
-function processCommentData(data) {
+function processCommentData(response) {
 
-    console.log(data);
+    console.log('Processing Comment Data...');
+
+    const data = response.result;
 
     let modifiedComments = [];
 
@@ -90,19 +100,31 @@ function processCommentData(data) {
 
     commentData.comments = modifiedComments;
 
+    let uniqueComments = uniqueCommentsCheckbox.checked;
+    let excludeCreator = excludeCreatorCheckbox.checked;
+
+    commentData.filterComments(uniqueComments, excludeCreator);
+
+    return response;
+
 }
 
-function processVideoData(data) {
-    console.log(data);
+function processVideoData(response) {
+
+    console.log('Processing Video Data...');
+
+    const data = response.result;
 
     commentData.video.channelName = data.items[0].snippet.channelTitle;
     commentData.video.title = data.items[0].snippet.title;
     commentData.video.channelId = data.items[0].snippet.channelId;
 
     console.log(commentData.video);
+
+    return response;
 }
 
-function dataProcessingFinished() {
+function finishProcessingData() {
     commentData.isSet = true;
 }
 
@@ -112,7 +134,7 @@ function updateResultsInDom() {
 
     channelNameSpan.textContent = commentData.video.channelName;
     videoTitleSpan.textContent = commentData.video.title;
-    commentsCountSpan.textContent = commentData.getFilteredComments(true, true).length;
+    commentsCountSpan.textContent = commentData.comments.length;
 
     activateButton(pickWinnerButton);
 }
@@ -138,6 +160,8 @@ function resetAll() {
     resetResultsInDom();
     commentData.resetData();
     videoIdField.value = '';
+    uniqueCommentsCheckbox.checked = true;
+    excludeCreatorCheckbox.checked = true;
 }
 
 function pickWinner() {
@@ -170,6 +194,8 @@ let videoIdField = document.getElementById('video-id');
 let submitButton = document.getElementById('submit-video-id');
 let pickWinnerButton = document.getElementById('pick-winner');
 let resetButton = document.getElementById('reset');
+let uniqueCommentsCheckbox = document.getElementById('unique-comments');
+let excludeCreatorCheckbox = document.getElementById('exclude-creator');
 let errorMessageSpan = document.getElementById('error-message');
 let channelNameSpan = document.getElementById('channel-name');
 let videoTitleSpan = document.getElementById('video-title');
@@ -178,9 +204,12 @@ let winnerNameSpan = document.getElementById("winner-name");
 let winnerCommentSpan = document.getElementById("winner-comment");
 let winnerImg = document.getElementById("winner-image");
 
+
 // Events
 
 videoIdField.addEventListener('input', updateId);
+videoIdField.addEventListener('paste', updateId);
 submitButton.addEventListener('click', submitVideoId);
 pickWinnerButton.addEventListener('click', pickWinner);
 resetButton.addEventListener('click', resetAll);
+
