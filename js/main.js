@@ -136,7 +136,6 @@ function updateResultsInDom() {
     channelNameSpan.textContent = commentData.video.channelName;
     videoTitleSpan.textContent = commentData.video.title;
     commentsCountSpan.textContent = commentData.comments.length;
-    videoDataSection.classList.remove('hidden');
     activateButton(pickWinnerButton);
 }
 
@@ -150,8 +149,6 @@ function resetResultsInDom() {
     videoTitleSpan.textContent = '';
     commentsCountSpan.textContent = '';
     resultsContainerDiv.innerHTML = '';
-    videoDataSection.classList.add('hidden');
-    resultsSection.classList.add('hidden');
     disableButton(submitButton);
     disableButton(pickWinnerButton);
 }
@@ -178,11 +175,10 @@ function pickWinner() {
     }
 
     if (commentData.winners.length === 1) {
-        resultsSection.classList.remove('hidden');
-        pickWinnerButton.textContent = "Pick more winners";
+        winnerH2.textContent = "Winner";
     }
 
-    if (commentData.winners.length === 2) {
+    if (commentData.winners.length > 1) {
         winnerH2.textContent = "Winners";
     }
 
@@ -219,8 +215,6 @@ let channelNameSpan = document.getElementById('channel-name');
 let videoTitleSpan = document.getElementById('video-title');
 let commentsCountSpan = document.getElementById("comments-count");
 let winnerH2 = document.getElementById("winner-h2");
-let videoDataSection = document.getElementById("video-data-section");
-let resultsSection = document.getElementById("results-section");
 let resultsContainerDiv = document.getElementById("results-container");
 
 // Events
