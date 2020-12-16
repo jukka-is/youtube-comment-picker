@@ -11,8 +11,8 @@ function submitVideoId() {
     if (isValidId(videoIdField.value)) {
         console.log('video id submitted: ' + videoIdField.value);
         commentData.video.id = videoIdField.value;
-        //gapi.load("client", getData);
-        gapi.load("client", start);
+        //Loads client, get's data from Api and updates results in Dom
+        gapi.load("client", startApiCall);
     }
     else {
         console.log("Can't submit invalid YouTube ID");
@@ -41,7 +41,8 @@ function isValidId(id) {
     return regex.test(id);
 }
 
-async function start() {
+
+async function startApiCall() {
     const clientSettings = {
         'apiKey': youtubeApiKey,
         'discoveryDocs': ['https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest'],
@@ -54,7 +55,7 @@ async function start() {
             errorMessageSpan.textContent = "Could not find YouTube video with the ID. Please try again.";
             return 'Error: ' + reason.result.error.message;
         });
-    return 'success again!';
+    return;
 }
 
 
