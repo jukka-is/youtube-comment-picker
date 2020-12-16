@@ -7,10 +7,12 @@ console.log('Main JS loaded');
 // Functions
 
 function submitVideoId() {
+
     if (isValidId(videoIdField.value)) {
         console.log('video id submitted: ' + videoIdField.value);
         commentData.video.id = videoIdField.value;
-        gapi.load("client", getData);
+        //gapi.load("client", getData);
+        gapi.load("client", start);
     }
     else {
         console.log("Can't submit invalid YouTube ID");
@@ -25,7 +27,8 @@ function updateId() {
     }
     else {
         console.log('Not a valid Youtube ID');
-    };
+    }
+
     if (commentData.isSet && commentData.video.id != videoIdField.value) {
         commentData.resetData();
         resetResultsInDom();
@@ -38,56 +41,54 @@ function isValidId(id) {
     return regex.test(id);
 }
 
-
-function getData() {
-    // Initialize the JavaScript client library.
-    gapi.client.init({
+async function start() {
+    const clientSettings = {
         'apiKey': youtubeApiKey,
         'discoveryDocs': ['https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest'],
-    })
-        .then(() => {
-            // Make the API request for comments
-            return gapi.client.youtube.commentThreads.list({
-                "part": ["snippet"],
-                "maxResults": 100,
-                "videoId": videoIdField.value,
-                "searchTerms": searchTermsField.value,
-                "access_token": youtubeApiKey
-            });
-        })
-        .then(response => processCommentData(response))
-        .then(() => {
-            // Make the API request for video meta-data
-            return gapi.client.youtube.videos.list({
-                "part": ["snippet"],
-                "id": [videoIdField.value],
-                "access_token": youtubeApiKey
-            });
-        })
-        .then(response => processVideoData(response))
-        .then(response => {
-            finishProcessingData();
-            return response;
-        })
-        .then(response => {
-            updateResultsInDom();
-            return response;
-        })
+    }
+    let clientResponse = await gapi.client.init(clientSettings);
+
+    getData()
+        .then(() => updateResultsInDom())
         .catch(reason => {
             errorMessageSpan.textContent = "Could not find YouTube video with the ID. Please try again.";
             return 'Error: ' + reason.result.error.message;
         });
+    return 'success again!';
+}
 
-};
+
+async function getData() {
+
+    const commentSettings = {
+        "part": ["snippet"],
+        "maxResults": 100,
+        "videoId": videoIdField.value,
+        "searchTerms": searchTermsField.value,
+        "access_token": youtubeApiKey
+    }
+    const videoSettings = {
+        "part": ["snippet"],
+        "id": [videoIdField.value],
+        "access_token": youtubeApiKey
+    }
+
+    let commentResponse = await gapi.client.youtube.commentThreads.list(commentSettings);
+    let videoResponse = await gapi.client.youtube.videos.list(videoSettings);
+
+    processCommentData(commentResponse);
+    processVideoData(videoResponse);
+    finishProcessingData();
+
+    return;
+}
+
 
 function processCommentData(response) {
 
     console.log('Processing Comment Data...');
-
     const data = response.result;
-
     let modifiedComments = [];
-
     for (let comment of data.items) {
         let modifiedComment = {
             'id': comment.snippet.topLevelComment.snippet.authorChannelId.value,
@@ -95,7 +96,6 @@ function processCommentData(response) {
             'imageUrl': comment.snippet.topLevelComment.snippet.authorProfileImageUrl,
             'content': comment.snippet.topLevelComment.snippet.textOriginal,
         };
-
         modifiedComments.push(modifiedComment);
     }
 
@@ -103,31 +103,29 @@ function processCommentData(response) {
 
     let uniqueComments = uniqueCommentsCheckbox.checked;
     let excludeCreator = excludeCreatorCheckbox.checked;
-
     commentData.filterComments(uniqueComments, excludeCreator);
 
     return response;
-
 }
+
 
 function processVideoData(response) {
 
     console.log('Processing Video Data...');
-
     const data = response.result;
 
     commentData.video.channelName = data.items[0].snippet.channelTitle;
     commentData.video.title = data.items[0].snippet.title;
     commentData.video.channelId = data.items[0].snippet.channelId;
 
-    console.log(commentData.video);
-
     return response;
 }
+
 
 function finishProcessingData() {
     commentData.isSet = true;
 }
+
 
 function updateResultsInDom() {
 
@@ -136,7 +134,6 @@ function updateResultsInDom() {
     channelNameSpan.textContent = commentData.video.channelName;
     videoTitleSpan.textContent = commentData.video.title;
     commentsCountSpan.textContent = commentData.comments.length;
-
     activateButton(pickWinnerButton);
 }
 
@@ -152,10 +149,10 @@ function resetResultsInDom() {
     winnerNameSpan.textContent = '';
     winnerCommentSpan.textContent = '';
     winnerImg.setAttribute('src', '');
-
     disableButton(submitButton);
     disableButton(pickWinnerButton);
 }
+
 
 function resetAll() {
     resetResultsInDom();
@@ -164,6 +161,7 @@ function resetAll() {
     uniqueCommentsCheckbox.checked = true;
     excludeCreatorCheckbox.checked = true;
 }
+
 
 function pickWinner() {
 
@@ -177,17 +175,21 @@ function pickWinner() {
     }
 }
 
+
 function disableButton(buttonElement) {
     buttonElement.setAttribute('disabled', true);
 }
+
 
 function activateButton(buttonElement) {
     buttonElement.removeAttribute('disabled');
 }
 
+
 // DATA
 
 let commentData = new CommentList();
+
 
 // DOM elements
 
