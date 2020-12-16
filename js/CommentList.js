@@ -2,6 +2,7 @@ export class CommentList {
     constructor() {
         this.isSet = false;
         this.comments = [];
+        this.winners = [];
         this.video = {
             'id': '',
             'title': '',

@@ -1,5 +1,6 @@
 import { youtubeApiKey } from './../api-keys.js';
 import { CommentList } from './CommentList.js';
+import { addWinnerData } from './templates/winner-data-div.js';
 
 console.log('Main JS loaded');
 
@@ -135,6 +136,7 @@ function updateResultsInDom() {
     channelNameSpan.textContent = commentData.video.channelName;
     videoTitleSpan.textContent = commentData.video.title;
     commentsCountSpan.textContent = commentData.comments.length;
+    videoDataSection.classList.remove('hidden');
     activateButton(pickWinnerButton);
 }
 
@@ -147,9 +149,9 @@ function resetResultsInDom() {
     channelNameSpan.textContent = '';
     videoTitleSpan.textContent = '';
     commentsCountSpan.textContent = '';
-    winnerNameSpan.textContent = '';
-    winnerCommentSpan.textContent = '';
-    winnerImg.setAttribute('src', '');
+    resultsContainerDiv.innerHTML = '';
+    videoDataSection.classList.add('hidden');
+    resultsSection.classList.add('hidden');
     disableButton(submitButton);
     disableButton(pickWinnerButton);
 }
@@ -166,14 +168,25 @@ function resetAll() {
 
 function pickWinner() {
 
-    console.log('Picking winner...');
+    let id = Math.floor(Math.random() * commentData.comments.length);
+    let winner = commentData.comments[id];
+    addWinnerData(resultsContainerDiv, 1, winner);
+    commentData.winners.push(commentData.comments.splice(id, 1));
 
-    if (commentData.isSet) {
-        let winner = commentData.comments[Math.floor(Math.random() * commentData.comments.length)];
-        winnerNameSpan.textContent = winner.name;
-        winnerCommentSpan.textContent = winner.content;
-        winnerImg.setAttribute('src', winner.imageUrl);
+    if (commentData.comments.length === 0) {
+        disableButton(pickWinnerButton);
     }
+
+    if (commentData.winners.length === 1) {
+        resultsSection.classList.remove('hidden');
+        pickWinnerButton.textContent = "Pick more winners";
+    }
+
+    if (commentData.winners.length === 2) {
+        winnerH2.textContent = "Winners";
+    }
+
+    console.log('winners amount: ' + commentData.winners.length);
 }
 
 
@@ -205,10 +218,10 @@ let errorMessageSpan = document.getElementById('error-message');
 let channelNameSpan = document.getElementById('channel-name');
 let videoTitleSpan = document.getElementById('video-title');
 let commentsCountSpan = document.getElementById("comments-count");
-let winnerNameSpan = document.getElementById("winner-name");
-let winnerCommentSpan = document.getElementById("winner-comment");
-let winnerImg = document.getElementById("winner-image");
-
+let winnerH2 = document.getElementById("winner-h2");
+let videoDataSection = document.getElementById("video-data-section");
+let resultsSection = document.getElementById("results-section");
+let resultsContainerDiv = document.getElementById("results-container");
 
 // Events
 
