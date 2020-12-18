@@ -59,13 +59,13 @@ li {
 }
 
 .form-settings {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   margin-top: 10px;
 }
 
 .checkbox-container {
   padding: 3px;
-  border: rgb(237, 233, 233) solid 1px;
+  border: rgba(237, 233, 233, 0.495) solid 1px;
   margin-right: 10px;
   border-radius: 5px;
 }

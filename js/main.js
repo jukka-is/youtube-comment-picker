@@ -30,7 +30,7 @@ function updateId() {
         console.log('Not a valid Youtube ID');
     }
 
-    if (commentData.isSet && commentData.video.id != videoIdField.value) {
+    if (commentData.isSet && videoIdField.value !== commentData.video.id) {
         commentData.resetData();
         resetResultsInDom();
     }
@@ -107,7 +107,7 @@ function processCommentData(response) {
     let excludeCreator = excludeCreatorCheckbox.checked;
     commentData.filterComments(uniqueComments, excludeCreator);
 
-    return response;
+    return;
 }
 
 
@@ -120,7 +120,7 @@ function processVideoData(response) {
     commentData.video.title = data.items[0].snippet.title;
     commentData.video.channelId = data.items[0].snippet.channelId;
 
-    return response;
+    return;
 }
 
 
