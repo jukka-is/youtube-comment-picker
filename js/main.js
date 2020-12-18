@@ -62,6 +62,10 @@ async function startApiCall() {
 
 async function getData() {
 
+    // Get comment threads.
+    // Max-results per page in YouTube API is 100.
+    // If there are more comments than this, Api response will include token for the next page.
+    // Do-while loop goes through all pages until all comments are received.
     const commentSettings = {
         "part": ["snippet"],
         "maxResults": 100,
@@ -69,36 +73,50 @@ async function getData() {
         "searchTerms": searchTermsField.value,
         "access_token": youtubeApiKey
     }
+    let commentResponses = [];
+    let thereAreMoreComments = true;
+    do {
+        let response = await gapi.client.youtube.commentThreads.list(commentSettings);
+        commentResponses.push(response);
+        if (!response.result.nextPageToken) {
+            thereAreMoreComments = false;
+        } else {
+            commentSettings.pageToken = response.result.nextPageToken;
+        }
+    } while (thereAreMoreComments);
+
+    // Get Video metadata
     const videoSettings = {
         "part": ["snippet"],
         "id": [videoIdField.value],
         "access_token": youtubeApiKey
     }
-
-    let commentResponse = await gapi.client.youtube.commentThreads.list(commentSettings);
     let videoResponse = await gapi.client.youtube.videos.list(videoSettings);
 
-    processCommentData(commentResponse);
+    processCommentData(commentResponses);
     processVideoData(videoResponse);
     finishProcessingData();
-
     return;
 }
 
 
-function processCommentData(response) {
+function processCommentData(responses) {
 
     console.log('Processing Comment Data...');
-    const data = response.result;
+    console.log(responses);
     let modifiedComments = [];
-    for (let comment of data.items) {
-        let modifiedComment = {
-            'id': comment.snippet.topLevelComment.snippet.authorChannelId.value,
-            'name': comment.snippet.topLevelComment.snippet.authorDisplayName,
-            'imageUrl': comment.snippet.topLevelComment.snippet.authorProfileImageUrl,
-            'content': comment.snippet.topLevelComment.snippet.textOriginal,
-        };
-        modifiedComments.push(modifiedComment);
+
+    for (let response of responses) {
+        const data = response.result;
+        for (let comment of data.items) {
+            let modifiedComment = {
+                'id': comment.snippet.topLevelComment.snippet.authorChannelId.value,
+                'name': comment.snippet.topLevelComment.snippet.authorDisplayName,
+                'imageUrl': comment.snippet.topLevelComment.snippet.authorProfileImageUrl,
+                'content': comment.snippet.topLevelComment.snippet.textOriginal,
+            };
+            modifiedComments.push(modifiedComment);
+        }
     }
 
     commentData.comments = modifiedComments;
@@ -172,14 +190,6 @@ function pickWinner() {
 
     if (commentData.comments.length === 0) {
         disableButton(pickWinnerButton);
-    }
-
-    if (commentData.winners.length === 1) {
-        winnerH2.textContent = "Winner";
-    }
-
-    if (commentData.winners.length > 1) {
-        winnerH2.textContent = "Winners";
     }
 
     console.log('winners amount: ' + commentData.winners.length);
