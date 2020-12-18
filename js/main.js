@@ -32,7 +32,7 @@ function updateId() {
 
     if (commentData.isSet && videoIdField.value !== commentData.video.id) {
         commentData.resetData();
-        resetResultsInDom();
+        resetResults();
     }
 }
 
@@ -154,30 +154,43 @@ function updateResultsInDom() {
     channelNameSpan.textContent = commentData.video.channelName;
     videoTitleSpan.textContent = commentData.video.title;
     commentsCountSpan.textContent = commentData.comments.length;
-    activateButton(pickWinnerButton);
+    if (commentData.comments.length > 0) {
+        activateButton(pickWinnerButton);
+    }
+
 }
 
 
-function resetResultsInDom() {
+function resetResults() {
 
-    console.log('Resetting dom...')
-
-    errorMessageSpan.textContent = '';
-    channelNameSpan.textContent = '';
-    videoTitleSpan.textContent = '';
-    commentsCountSpan.textContent = '';
-    resultsContainerDiv.innerHTML = '';
-    disableButton(submitButton);
-    disableButton(pickWinnerButton);
+    if (commentData.isSet) {
+        console.log('Resetting dom...')
+        commentData.resetData();
+        errorMessageSpan.textContent = '';
+        channelNameSpan.textContent = '';
+        videoTitleSpan.textContent = '';
+        commentsCountSpan.textContent = '';
+        resultsCountP.textContent = '';
+        resultsContainerDiv.innerHTML = '';
+        if (!isValidId(videoIdField.value)) {
+            disableButton(submitButton);
+        }
+        disableButton(pickWinnerButton);
+    }
 }
 
 
-function resetAll() {
-    resetResultsInDom();
-    commentData.resetData();
+function resetForm() {
     videoIdField.value = '';
+    searchTermsField.value = '';
     uniqueCommentsCheckbox.checked = true;
     excludeCreatorCheckbox.checked = true;
+}
+
+
+function resetApp() {
+    resetResults();
+    resetForm();
 }
 
 
@@ -192,6 +205,7 @@ function pickWinner() {
         disableButton(pickWinnerButton);
     }
 
+    resultsCountP.textContent = `Winners picked ${commentData.winners.length} of ${commentData.comments.length + commentData.winners.length}`;
     console.log('winners amount: ' + commentData.winners.length);
 }
 
@@ -225,13 +239,17 @@ let channelNameSpan = document.getElementById('channel-name');
 let videoTitleSpan = document.getElementById('video-title');
 let commentsCountSpan = document.getElementById("comments-count");
 let winnerH2 = document.getElementById("winner-h2");
+let resultsCountP = document.getElementById("results-count");
 let resultsContainerDiv = document.getElementById("results-container");
 
 // Events
 
 videoIdField.addEventListener('input', updateId);
 videoIdField.addEventListener('paste', updateId);
+searchTermsField.addEventListener('change', resetResults);
+uniqueCommentsCheckbox.addEventListener('change', resetResults);
+excludeCreatorCheckbox.addEventListener('change', resetResults);
 submitButton.addEventListener('click', submitVideoId);
 pickWinnerButton.addEventListener('click', pickWinner);
-resetButton.addEventListener('click', resetAll);
+resetButton.addEventListener('click', resetApp);
 
